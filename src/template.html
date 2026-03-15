@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rally Logger Lite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  </head>
+  <body>
+
+  <!--ОТКРЫВАЕМАЯ ПРАВАЯ ПАНЕЛЬКА-->
+  @require('/views/drawer/track.html')
+  @require('/views/drawer/race.html')
+  @require('/views/drawer/help.html')
+  <!-- end ОТКРЫВАЕМАЯ ПРАВАЯ ПАНЕЛЬКА-->
+
+    <div class="overlap-page" style="display: fixed;">
+      <div class="block-map" id="lMap"></div>
+      <!--<div id="tmpContainer" style="position: absolute;left: 0px;top: 0px;"></div>-->
+
+      <div class="block-control tr">
+        <!--Кнопки справа-->
+        @require('/views/navs.html')
+        <!--Конец кнопок справа-->
+      </div>
+
+      <div class="block-control tl">
+        <!--Начало панельки сверху-->
+        @require('/views/infopanel.html')
+        <!--Конец панельки сверху-->
+      </div>
+
+      <div class="footer-control">
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+          <div class="btn-group btn-group-sm me-2" role="group" aria-label="Small button group">
+            <button id="btnSwitchGraph" type="button" class="btn btn-primary">Показать/спрятать</button>
+            <button id="btnResetGraphZoom" type="button" class="btn btn-primary">Сброс зум</button>
+            <button id="btnResetGraphSelect" type="button" class="btn btn-primary" disabled>Сброс выделение</button>
+          </div>
+
+          <div class="btn-group btn-group-sm" role="group" aria-label="Small button group">
+            <button id="btnDeleteSelect" type="button" class="btn btn-danger" disabled>Удалить выбранное</button>
+            <button id="btnSetOnlySelect" type="button" class="btn btn-warning" disabled>Оставить выбранное</button>
+          </div>
+        </div>
+
+        <table class="table table-dark table-striped">
+          <thead>
+            <tr>
+              <th scope="col">Начало</th>
+              <th scope="col">Конец</th>
+              <th scope="col">Время</th>
+              <th scope="col">Макс. Скорость</th>
+              <th scope="col">Сред. Скорость</th>
+              <th scope="col">Сред-Двиг Скорость</th>
+              <th scope="col">Дистанция</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td id="tdRaceStart">n/a</th>
+              <td id="tdRaceEnd">n/a</th>
+              <td id="tdRaceTime">n/a</th>
+              <td id="tdRaceMaxSpeed">n/a</td>
+              <td id="tdRaceAvgSpeed">n/a</td>
+              <td id="tdRaceGoAvgSpeed">n/a</td>
+              <td id="tdRaceDist">n/a</td>
+            </tr>
+            <tr id="tdsRaceSelect">
+              <td id="tdSelectRaceStart">n/a</th>
+              <td id="tdSelectRaceEnd">n/a</th>
+              <td id="tdSelectRaceTime">n/a</th>
+              <td id="tdSelectRaceMaxSpeed">n/a</td>
+              <td id="tdSelectRaceAvgSpeed">n/a</td>
+              <td id="tdSelectRaceGoAvgSpeed">n/a</td>
+              <td id="tdSelectRaceDist">n/a</td>
+            </tr>
+          </tbody>
+        </table>
+        <span class="bTableInfo">Ctrl - выделение графика, Shift - перемещение графика</span>
+        <canvas class="graph" height="250" id="raceGraph"></canvas>
+      </div>
+
+    </div>
+
+    <div id="toastContainer" class="toast-container position-absolute bottom-0 start-0 p-3" style="z-index: 999999;"></div>
+
+  </body>
+</html>

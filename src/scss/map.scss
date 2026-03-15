@@ -1,0 +1,214 @@
+@import "./svg-uri.scss";
+@import 'leaflet/dist/leaflet.css';
+@import 'leaflet-ruler/src/leaflet-ruler.css';
+
+$ruler-icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-rulers" viewBox="0 0 16 16">'+
+'<path d="M1 0a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h5v-1H2v-1h4v-1H4v-1h2v-1H2v-1h4V9H4V8h2V7H2V6h4V2h1v4h1V4h1v2h1V2h1v4h1V4h1v2h1V2h1v4h1V1a1 1 0 0 0-1-1H1z"/>'+
+'</svg>';
+$ruler-icon-hover: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#c8681a" class="bi bi-rulers" viewBox="0 0 16 16">'+
+'<path d="M1 0a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h5v-1H2v-1h4v-1H4v-1h2v-1H2v-1h4V9H4V8h2V7H2V6h4V2h1v4h1V4h1v2h1V2h1v4h1V4h1v2h1V2h1v4h1V1a1 1 0 0 0-1-1H1z"/>'+
+'</svg>';
+$ruler-icon-active: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#96490b" class="bi bi-rulers" viewBox="0 0 16 16">'+
+'<path d="M1 0a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h5v-1H2v-1h4v-1H4v-1h2v-1H2v-1h4V9H4V8h2V7H2V6h4V2h1v4h1V4h1v2h1V2h1v4h1V4h1v2h1V2h1v4h1V1a1 1 0 0 0-1-1H1z"/>'+
+'</svg>';
+
+.leaflet-ruler{
+    background-image: svg-uri($ruler-icon);
+}
+.leaflet-ruler:hover{
+    background-image: svg-uri($ruler-icon-hover);
+}
+.leaflet-ruler-clicked{
+    height: 35px;
+    width: 35px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-image: svg-uri($ruler-icon-active);
+    border-color: #f3ca45 !important;
+}
+
+.block-map {
+    position: absolute;
+    //height: 100vh;
+    //width: 100%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.leaflet-container {
+    img.leaflet-image-layer {
+        opacity: 0.3;
+    }
+}
+
+.leaflet-container {
+    font-family: var(--bs-font-sans-serif);
+}
+
+.big-leaflet-poup{
+    font-family: var(--bs-font-sans-serif);
+}
+
+.leaflet-control-layers-expanded .btn-toggle {
+    display: none;
+}
+
+.circle-interactive:hover{
+    text-shadow:0 0 20px red;
+    -moz-box-shadow:0 0 20px red;
+    -webkit-box-shadow:0 0 20px red;
+    box-shadow:0 0 20px red;
+}
+
+.leaflet-control-scale-line{
+    width: auto !important;
+}
+
+/*.leaflet-control-attribution{
+    &.leaflet-control{
+        font-size: .9rem;
+    }
+}*/
+
+.leaflet-popup-content{
+    overflow-wrap: anywhere;
+}
+
+.leaflet-orth-pane{
+    z-index: 300;
+}
+
+
+.my-div-icon-wrap {
+    position: absolute;
+    top: -43px;
+    left: -12px;
+    &.disabled{
+        opacity: 0.2;
+    }
+}
+
+.my-div-icon {
+    //position: relative;
+    width: 20px;
+    height: 30px;
+    &.opacity{
+        opacity: 0.4;
+    }
+    &.disabled{
+        opacity: 0.2;
+    }
+}
+
+$my-div-icon-def: '<svg width="24" height="43" viewBox="0 0 24 43" fill="transparent" xmlns="http://www.w3.org/2000/svg">'+
+'<path d="M23 13.093C23 20.4851 12.2245 41 12.2245 41C12.2245 41 1 20.4851 1 13.093C1 5.7009 6.01459 1 12.2245 1C18.4344 1 23 5.7009 23 13.093Z" fill="#62da6b" stroke="white" stroke-width="1.5"/>'+
+'</svg>';
+$my-div-icon-node: '<svg width="24" height="43" viewBox="0 0 24 43" fill="none" xmlns="http://www.w3.org/2000/svg">'+
+'<path d="M23 13.093C23 20.4851 12.2245 41 12.2245 41C12.2245 41 1 20.4851 1 13.093C1 5.7009 6.01459 1 12.2245 1C18.4344 1 23 5.7009 23 13.093Z" fill="#6274da" stroke="white" stroke-width="1.5"/>'+
+'</svg>';
+$my-div-icon-base: '<svg width="24" height="43" viewBox="0 0 24 43" fill="none" xmlns="http://www.w3.org/2000/svg">'+
+'<path d="M23 13.093C23 20.4851 12.2245 41 12.2245 41C12.2245 41 1 20.4851 1 13.093C1 5.7009 6.01459 1 12.2245 1C18.4344 1 23 5.7009 23 13.093Z" fill="#e7a11f" stroke="white" stroke-width="1.5"/>'+
+'</svg>';
+$my-div-icon-disabled: '<svg width="24" height="43" viewBox="0 0 24 43" fill="none" xmlns="http://www.w3.org/2000/svg">'+
+'<path d="M23 13.093C23 20.4851 12.2245 41 12.2245 41C12.2245 41 1 20.4851 1 13.093C1 5.7009 6.01459 1 12.2245 1C18.4344 1 23 5.7009 23 13.093Z" fill="gray" stroke="white" stroke-width="1.5"/>'+
+'</svg>';
+$my-div-icon-error: '<svg width="24" height="43" viewBox="0 0 24 43" fill="none" xmlns="http://www.w3.org/2000/svg">'+
+'<path d="M23 13.093C23 20.4851 12.2245 41 12.2245 41C12.2245 41 1 20.4851 1 13.093C1 5.7009 6.01459 1 12.2245 1C18.4344 1 23 5.7009 23 13.093Z" fill="crimson" stroke="white" stroke-width="1.5"/>'+
+'</svg>';
+
+$my-div-icon-eight: '<svg width="24" height="43" viewBox="0 0 24 43" fill="none" xmlns="http://www.w3.org/2000/svg">'+
+'<path d="M23 13.093C23 20.4851 12.2245 41 12.2245 41C12.2245 41 1 20.4851 1 13.093C1 5.7009 6.01459 1 12.2245 1C18.4344 1 23 5.7009 23 13.093Z" fill="#1E90FF" stroke="white" stroke-width="1.5"/>'+
+'</svg>';
+
+.my-div-icon-number {
+    position: absolute;
+    //top: 15px;
+    width: 24px;
+    height: 38px;
+    padding-top: 5px;
+    //padding-top: 2px;
+    //width: 24px;
+    //height: 24px;
+    //border-radius: 12px;
+    //background-color: #62da6b;
+    //border: white 1px solid;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    background-image: svg-uri($my-div-icon-node);
+    text-align: center;
+    color: black;
+    &.accepted{
+        background-image: svg-uri($my-div-icon-def);
+    }
+    &.base{
+        background-image: svg-uri($my-div-icon-base);
+        z-index: 100;
+    }
+    &.disabled{
+        //background-color: gray;
+        background-image: svg-uri($my-div-icon-disabled);
+    }
+    &.error{
+        -webkit-filter: drop-shadow(0 0 10px #f00);
+        filter: drop-shadow(0 0 10px #f00);
+
+        animation: pulseErrorMarker 2s infinite;
+        background-image: svg-uri($my-div-icon-error);
+    }
+
+    &.eight{
+        background-image: svg-uri($my-div-icon-eight);
+        z-index: 100;
+        font-size: 18px;
+    }
+    &.selected{
+        -webkit-filter: drop-shadow(0 0 10px #ff0);
+        filter: drop-shadow(0 0 10px #ff0);
+    }
+}
+//.my-div-icon-number:before {
+//    position: absolute;
+//    width: 0;
+//    height: 0;
+//    bottom: -6px;
+//    left: 5px;
+//    border-left:  6px solid transparent;
+//    border-right: 6px solid transparent;
+//    border-top:   7px solid white;
+//    content: ""
+//}
+
+.my-div-icon-number:hover{
+    //box-shadow: 0 0 0 rgba(204,169,44, 0.4);
+    //animation: pulse 2s infinite;
+        //text-shadow:0 0 20px #0f0;
+        //-moz-box-shadow:0 0 20px #0f0;
+        //-webkit-box-shadow:0 0 20px #0f0;
+        //box-shadow:0 0 20px #0f0;
+
+    -webkit-filter: drop-shadow(0 0 10px #0f0);
+    filter: drop-shadow(0 0 10px #0f0);
+
+    //:before{
+    //    text-shadow:0 0 20px #0f0;
+    //    -moz-box-shadow:0 0 20px #0f0;
+    //    -webkit-box-shadow:0 0 20px #0f0;
+    //    box-shadow:0 0 20px #0f0;
+    //}
+}
+
+.my-div-icon-label {
+    position: absolute;
+    //top: 0px;
+    top: -15px;
+    left: -18px;
+    width: 58px;
+    height: 15px;
+    text-align: center;
+    font-size: 0.9em;
+    text-shadow: 0px 0px 3px black, 0px 0px 3px black;
+    font-family: Roboto, sans-serif;
+}

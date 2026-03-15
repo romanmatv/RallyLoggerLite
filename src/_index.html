@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rally Logger Lite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  </head>
+  <body>
+
+  <!--ОТКРЫВАЕМАЯ ПРАВАЯ ПАНЕЛЬКА-->
+  <!-- end ОТКРЫВАЕМАЯ ПРАВАЯ ПАНЕЛЬКА-->
+
+    <div class="overlap-page" style="display: fixed;">
+      <div class="block-map" id="lMap"></div>
+      <!--<div id="tmpContainer" style="position: absolute;left: 0px;top: 0px;"></div>-->
+
+      <div class="block-control tr">
+        <!--Кнопки справа-->
+        <button type="button" class="btn btn-primary" data-bs-toggle-second="tooltip" data-bs-placement="left" data-bs-title="User profile" i18n-source="bs-title" i18n-text="User profile"
+            data-bs-toggle="offcanvas" data-bs-target="#offcanvas-user" aria-controls="offcanvas-user">
+            <i class="bi bi-person-circle"></i>
+        </button>
+        <!--Конец кнопок справа-->
+      </div>
+
+      <div class="block-control tl">
+        <!--Начало панельки сверху-->
+        @require('/views/nav/infopanel.html')
+        <!--Конец панельки сверху-->
+      </div>
+
+    </div>
+
+    <div id="toastContainer" class="toast-container position-absolute bottom-0 start-0 p-3" style="z-index: 999999;"></div>
+
+  </body>
+</html>

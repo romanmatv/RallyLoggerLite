@@ -1,0 +1,112 @@
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas-track" aria-labelledby="offcanvas-trackLabel">
+    <div class="offcanvas-header">
+      <h5 id="offcanvas-trackLabel">Трек</h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+
+        <div class="container">
+            <div class="row">
+                <span id="track-loaded-file-text"></span>
+            </div>
+            <div class="row">
+                <button class="btn btn-primary" id="btnLoadTrack" data-bs-dismiss="offcanvas">Загрузить трек</button>
+                <input type="file" class="hide" accept=".gpx" id="inputTrack">
+            </div>
+
+            <div class="row">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="chkbDrawTrackLine">
+                    <label class="form-check-label" for="chkbDrawTrackLine">
+                        Рисовать линию между точек
+                    </label>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Радиус взятия</span>
+                    <input type="number" class="form-control" id="inputTrackAcceptRadius" min="10" max="1000">
+                    <span class="input-group-text">м</span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Эт. дистанция трека</span>
+                    <input type="number" class="form-control" id="inputTrackLength" value="0">
+                    <span class="input-group-text">м</span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-group mb-3">
+                    <span class="input-group-text" data-bs-toggle="tooltip" data-bs-title="Глобальное ограничение скорости на всей трассе">
+                        <abbr>Ограничение скорости</abbr>
+                    </span>
+                    <input type="number" class="form-control" id="inputGlobalSpeedLimit" value="0">
+                    <span class="input-group-text">км/ч</span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-group mb-3">
+                    <span class="input-group-text" data-bs-toggle="tooltip" data-bs-title="Время после которого начинается начисление штрафа">
+                        <abbr>Отсчет начала штрафа скор.</abbr>
+                    </span>
+                    <input type="number" class="form-control" id="inputTimeSpeedStartFine" value="0">
+                    <span class="input-group-text">сек</span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-group mb-3">
+                    <span class="input-group-text" data-bs-toggle="tooltip" data-bs-title="Время, после которого будет повторно начислен штраф при непрерывном превышении скорости">
+                        <abbr>Время повторного штрафа</abbr>
+                    </span>
+                    <input type="number" class="form-control" id="inputTimeSpeedRepeatFine" value="0">
+                    <span class="input-group-text">сек</span>
+                </div>
+            </div>
+
+            <div class="row">
+                <h4>Обрезка заезда в начале</h4>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="startTrimType" id="startTrimType-1" value="speed" checked>
+                    <label class="form-check-label" for="startTrimType-1">
+                        По скорости более 10км/ч
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="startTrimType" id="startTrimType-2" value="radius" >
+                    <label class="form-check-label" for="startTrimType-2">
+                        По выходу с радиуса 1 точки
+                    </label>
+                </div>
+            </div>
+
+            <!--<div class="row">
+                <h4>Обрезка заезда в конце</h4>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="endTrimType" id="endTrimType-1" value="radius">
+                    <label class="form-check-label" for="endTrimType-1">
+                        Вхождение в радиус последней точки
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="endTrimType" id="endTrimType-2" value="center" checked>
+                    <label class="form-check-label" for="endTrimType-2">
+                        По наиболее близкому к последней точке
+                    </label>
+                </div>
+            </div>-->
+        </div>
+
+        <span>Внимание! После изменения данных настроек необходимо заново загрузить заезд.</span>
+
+        <div class="row">
+            <button id="btnSaveTrackGpx" class="btn btn-primary">Сохранить трек в GPX</button>
+        </div>
+        
+    </div>
+</div>

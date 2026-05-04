@@ -52,11 +52,11 @@ function switchGraph(show = true){
     if (show){
         raceGraph.classList.remove('hide')
         tdsRaceSelect.classList.remove('hide')
-        bTableInfo.classList.remove('hide')
+        graphInfo.classList.remove('hide')
     }else{
         raceGraph.classList.add('hide')
         tdsRaceSelect.classList.add('hide')
-        bTableInfo.classList.add('hide')
+        graphInfo.classList.add('hide')
     }
 
     localStorage.setItem('showGraph', show);
@@ -65,7 +65,7 @@ function switchGraph(show = true){
 const btnSwitchGraph = document.getElementById('btnSwitchGraph')
 const raceGraph = document.getElementById('raceGraph')
 const tdsRaceSelect = document.getElementById('tdsRaceSelect')
-const bTableInfo = document.querySelector(".bTableInfo")
+const graphInfo = document.querySelector("#graphInfo")
 
 switchGraph(localStorage.getItem('showGraph')=="true")
 
@@ -88,33 +88,35 @@ rGlobal.map = L.map('lMap', {
     preferCanvas: true
 });
 
-
-const mapboxTile = L.tileLayer(MAPBOX_URL, {
-    attribution: 'Tiles &copy; <a href="https://www.mapbox.com/about/maps/">MapBox</a>',
-    maxZoom: 22
-});
-
 const osmTile = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}
-)
-
-const yaTile = L.tileLayer('https://tiles.api-maps.yandex.ru/v1/tiles/?x={x}&y={y}&z={z}&lang=ru_RU&l=map&apikey={YA_API_KEY}&maptype={map_type}&projection={projection}', {
-  YA_API_KEY: YA_TILES_API,
-  projection: "web_mercator",
-  map_type: "future_map", //future_map//driving//map
-  attribution: '&copy; <a href="https://yandex.ru/maps">Яндекс</a>',
-  tileSize: 256
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 })
 
 rGlobal.map.baseLayers = {
-  "MapBox Спутник": mapboxTile,
+  //"MapBox Спутник": mapboxTile,
   "OSM Схема": osmTile,
-  "Яндекс Схема": yaTile,
+  //"Яндекс Схема": yaTile,
 };
-rGlobal.map.overLayers = {
-    //"ОФП Росреестр": rosreestr_ofp,
+
+if (MAPBOX_URL){
+    const mapboxTile = L.tileLayer(MAPBOX_URL, {
+        attribution: 'Tiles &copy; <a href="https://www.mapbox.com/about/maps/">MapBox</a>',
+        maxZoom: 22
+    });
+    rGlobal.map.baseLayers["MapBox Спутник"] = mapboxTile;
 }
+
+if (YA_TILES_API){
+    const yaTile = L.tileLayer('https://tiles.api-maps.yandex.ru/v1/tiles/?x={x}&y={y}&z={z}&lang=ru_RU&l=map&apikey={YA_API_KEY}&maptype={map_type}&projection={projection}', {
+        YA_API_KEY: YA_TILES_API,
+        projection: "web_mercator",
+        map_type: "future_map", //future_map//driving//map
+        attribution: '&copy; <a href="https://yandex.ru/maps">Яндекс</a>',
+        tileSize: 256
+    })
+    rGlobal.map.baseLayers["Яндекс Схема"] = yaTile;
+}
+
 let tileLayers = L.control.layers(rGlobal.map.baseLayers, rGlobal.map.overLayers, {position: 'bottomright'}).addTo(rGlobal.map);
 
 osmTile.addTo(rGlobal.map);

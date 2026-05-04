@@ -1,6 +1,8 @@
 @use 'bootstrap';
 @use 'bootstrap-icons';
 @use "@fontsource/roboto"; // Defaults to weight 400
+//@use 'sweetalert2/src/sweetalert2.scss';
+@use 'sweetalert2/themes/bootstrap-5.css';
 @use "./map.scss";
 @use "./controls.scss";
 

@@ -6,14 +6,16 @@ import Chart from 'chart.js/auto';
 import * as ChartHelpers from 'chart.js/helpers';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import draggableSelectRangePlugin from 'chartjs-plugin-draggable-selectrange';
-//import ChartDataLabels from 'chartjs-plugin-datalabels';
 import annotationPlugin from 'chartjs-plugin-annotation';
 import 'chartjs-adapter-moment';
 import moment from 'moment';
 import helper from './helper';
+import Swal from 'sweetalert2';
 //import ChartJSEnhancements from '../modules/chartjs-plugin-zoom-pan-select';
 
 //let enhancer = new ChartJSEnhancements(chartjs_object);
+
+let speedFinesMap = new Map();
 
 let distFormat = new Intl.NumberFormat('ru-ru', {
     'maximumFractionDigits': 0,
@@ -297,7 +299,8 @@ let graphConfig = {
                 }
             },
         }
-    }
+    },
+    plugins: []
 };
 
 export const trackPoint = {
@@ -441,17 +444,25 @@ function calcResultsForBound(from, to){
 
 /**
  * 
- * @param {{accepted: -1, index: number, text: string}} options 
+ * @param {{accepted: -1, index: number, text: string, speedLimit: number}} options 
  */
 function getMarkerIcon(options = {}){
     let dClass = ["","error","accepted"];
     let acc = options&&options.accepted!=undefined?options.accepted:-1;
+    let dz = options&&options.speedLimit!=undefined?options.speedLimit:-1;
+    let dzText = "";
+    if (dz>0){
+        dzText = ` <span class='speed'>DZ: ${dz}</span>`;
+    }
+    if (dz==0){
+        dzText = " <span class='speed speed-end'>FZ</span>";
+    }
     let myIcon = L.divIcon({
     className: 'my-div-icon',
     iconSize: null,
     html: '<div class="my-div-icon-wrap">'
-        + '<div class="my-div-icon-number '+dClass[acc+1]+'">'+ (options?.index|"") +'</div>'
-        + '<div class="my-div-icon-label">'+ (options&&options.text?options.text:"") + '</div>'
+        + '<div class="my-div-icon-number '+dClass[acc+1]+'">i'+ (options?.index|"") +'</div>'
+        + '<div class="my-div-icon-label">'+ (options&&options.text?options.text:"") + dzText + '</div>'
         + '</div>'
     });
     return myIcon;
@@ -483,7 +494,7 @@ function drawTrackLine(draw = true){
  * Функция билда трека на карте
  */
 function buildTrack(){
-    if (rGlobal.trackGPX){
+    if (rGlobal.trackArray.length>0){
         const points = rGlobal.trackArray
 
         if (rGlobal.featureTrack){
@@ -497,6 +508,13 @@ function buildTrack(){
         for (const point of points){
             point.accepted = -1;
 
+            /*if (i==3){
+                point.speedLimit = 30;
+            }
+            if (i==4){
+                point.speedLimit = 0;
+            }*/
+
             if (point.circle){
                 point.circle.remove()
             }
@@ -507,7 +525,7 @@ function buildTrack(){
                 point.marker.remove()
             }
             point.marker = L.marker(point, {
-                icon: getMarkerIcon({accepted: point.accepted, index: i , text: point.text}),
+                icon: getMarkerIcon({accepted: point.accepted, index: i , text: point.text, speedLimit: point.speedLimit}),
                 draggable: true
             })
             fg.addLayer(point.marker);
@@ -601,11 +619,19 @@ function buildRace(){
         if (rGlobal.finishRaceMarker) rGlobal.finishRaceMarker.remove();
     }
 
-
-
     rGlobal.raceGraph.data.labels = rGlobal.raceArray.map(e=>{return moment(e.time)})
     rGlobal.raceGraph.data.datasets[0].data = rGlobal.raceArray.map(e=>{return e.speed});
-    //rGlobal.raceGraph.data.datasets[1].data = rGlobal.raceArray.map(e=>{return e.dist});
+    rGlobal.raceGraph.data.datasets[0].borderColor = (ctx)=>{
+        try{
+            if (ctx?.parsed?.x && speedFinesMap.has(ctx?.parsed?.x)){
+                return "#FE3535"
+            }else{
+                return "#3566FE"
+            }
+        }catch(e){  
+            return "#3566FE"
+        }
+    };
     rGlobal.raceGraph.update()
 }
 
@@ -679,7 +705,7 @@ function setAllMarkersAccepted(acc){
     for (let j=0; j<rGlobal.trackArray.length; j++){
         let tp = rGlobal.trackArray[j];
         tp.accepted = acc
-        tp.marker.setIcon(getMarkerIcon({accepted: tp.accepted, index: j+1 , text: tp.text}))
+        tp.marker.setIcon(getMarkerIcon({accepted: tp.accepted, index: j+1 , text: tp.text, speedLimit: tp.speedLimit}))
     }
 }
 
@@ -697,8 +723,16 @@ function checkRaceOnTrack(){
     const tdRaceStart = document.getElementById('tdRaceStart')
     const tdRaceEnd = document.getElementById('tdRaceEnd')
 
+    const spnFinesSpeed = document.getElementById('spnFinesSpeed')
+    const spnFinesPoints = document.getElementById('spnFinesPoints')
+
     const tdRaceDist = document.getElementById('tdRaceDist')
     const tdSelectRaceDist = document.getElementById('tdSelectRaceDist')
+
+    rGlobal.overSpeedLineRaces.forEach(line=>{
+        line.remove();
+    });
+    rGlobal.overSpeedLineRaces = [];
 
     if (rGlobal.raceArray.length==0){
         setAllMarkersAccepted(-1);
@@ -729,10 +763,20 @@ function checkRaceOnTrack(){
     let currentSpeedLimit = rGlobal.globalSpeedLimit;
     let overSpeedStart = 0;
     let overSpeedEnd = 0;
+    let maxOverSpeed = 0;
+    /**@type {typeof racePoint?} */
+    let overSpeedPointStart = null;
+    /**@type {typeof racePoint?} */
+    let overSpeedPointEnd = null;
 
-    /**@type {[import('moment').Moment, import('moment').Moment][]} */
-    let overSpeedTimes = [];
+    let overSpeedFines = 0;
+    let overPointFines = 0;
 
+    /**@type {typeof racePoint[]} */
+    let overSpeedPoints = [];
+
+    speedFinesMap.clear();
+    let speedTimes = [];
     for (let i=0; i<rGlobal.raceArray.length; i++){
         const rp = rGlobal.raceArray[i];
         //getMarkerIcon({accepted: point.accepted, index: i , text: point.text})
@@ -746,59 +790,94 @@ function checkRaceOnTrack(){
 
         for (let j=0; j<rGlobal.trackArray.length; j++){
             const tp = rGlobal.trackArray[j];
-            if (true){ //tp.accepted!=1
-                const metres = helper.distance(rp, tp);
-                if (metres<=rGlobal.acceptRadius){
-                    if (tp.accepted!=1){
-                        tp.accepted = 1;
-                        tp.marker.setIcon(getMarkerIcon({accepted: tp.accepted, index: j+1 , text: tp.text}))
-                    }                    
+            const metres = helper.distance(rp, tp);
+            if (metres<=rGlobal.acceptRadius){
+                if (tp.accepted!=1){
+                    tp.accepted = 1;
+                    tp.marker.setIcon(getMarkerIcon({accepted: tp.accepted, index: j+1 , text: tp.text, speedLimit: tp.speedLimit}))
+                }                    
 
-                    //rGlobal.raceGraph.config.plugins
-                    if (rGlobal.raceGraph.config.options.plugins.annotation.annotations[`point_${j}`]===undefined || 
-                        rGlobal.raceGraph.config.options.plugins.annotation.annotations[`point_${j}`].dist>metres
-                    ){
-                        rGlobal.raceGraph.config.options.plugins.annotation.annotations[`point_${j}`] =
-                        {
-                            type: 'line',
-                            xMin: rp.time,
-                            xMax: rp.time,
-                            borderColor: 'rgb(255, 99, 132)',
-                            borderWidth: 2,
-                            dist: metres,
-                            label: {
-                                content: tp.text,
-                                display: true,
-                                rotation: -90
-                            }
+                if (rGlobal.raceGraph.config.options.plugins.annotation.annotations[`point_${j}`]===undefined || 
+                    rGlobal.raceGraph.config.options.plugins.annotation.annotations[`point_${j}`].dist>metres
+                ){
+                    rGlobal.raceGraph.config.options.plugins.annotation.annotations[`point_${j}`] =
+                    {
+                        type: 'line',
+                        xMin: rp.time,
+                        xMax: rp.time,
+                        borderColor: 'rgb(255, 99, 132)',
+                        borderWidth: 2,
+                        dist: metres,
+                        label: {
+                            content: tp.text,
+                            display: true,
+                            rotation: -90
                         }
                     }
+                }
+
+                if (tp.speedLimit>0){
+                    currentSpeedLimit = tp.speedLimit;
+                }
+                if (tp.speedLimit==0){
+                    currentSpeedLimit = rGlobal.globalSpeedLimit;
                 }
             }
         }
 
         if (rp.speed>currentSpeedLimit && overSpeedStart===0){
             overSpeedStart = rp.time;
+            overSpeedPointStart = rp;
+        }
+        if (overSpeedStart!==0 && overSpeedEnd===0){
+            speedTimes.push(rp.time.unix()*1000)
+            if (rp.speed>maxOverSpeed) maxOverSpeed = rp.speed;
+            overSpeedPoints.push(rp);
         }
         if (overSpeedStart!==0 && rp.speed<=currentSpeedLimit){
             overSpeedEnd = rp.time;
+            overSpeedPointEnd = rp;
         }
 
         if (overSpeedStart!==0 && overSpeedEnd!==0){
             //Промежуток нарушения кончился, считаем
             let time = (overSpeedEnd - overSpeedStart) / 1000;
             if (time>rGlobal.timeSpeedStartFine){
-                overSpeedTimes.push([overSpeedStart, overSpeedEnd])
                 time = (time-rGlobal.timeSpeedStartFine)
                 let fines = 1;
                 if (time>rGlobal.timeSpeedRepeatFine){
-                    fines += Math.abs(time/rGlobal.timeSpeedRepeatFine);
+                    fines = Math.round(Math.abs(time/rGlobal.timeSpeedRepeatFine));
                 }
+
+                overSpeedFines += fines;
+
+                let line = L.polyline(overSpeedPoints, {
+                    color: 'red',
+                    weight: 4.5,
+                    dashArray: "4 1"
+                });
+                let fineTooltip = L.popup({
+                    content: `Штрафных санкций: ${fines}<br>
+                    Время превышения: ${moment((overSpeedEnd - overSpeedStart)).utc().format('mm:ss')}<br>
+                    Максимальная скорость: ${maxOverSpeed.toFixed(1)} км/ч`
+                })
+                line.bindPopup(fineTooltip);
+                line.addTo(rGlobal.map);
+                rGlobal.overSpeedLineRaces.push(line);
+
+                speedTimes.forEach(t=>{
+                    speedFinesMap.set(t, 1)
+                });
             }
             overSpeedStart = 0;
             overSpeedEnd = 0;
+            speedTimes = [];
+            maxOverSpeed = 0;
+            overSpeedPoints = [];
         }
     }
+
+    overPointFines =rGlobal.trackArray.filter(tp=>tp.accepted==0).length;
 
     let raceTime = Math.abs(moment(rGlobal.raceArray[0].time).diff(rGlobal.raceArray[rGlobal.raceArray.length-1].time))
     tdRaceTime.textContent = `${moment(raceTime).utc().format('HH:mm:ss')}`
@@ -810,15 +889,15 @@ function checkRaceOnTrack(){
     tdRaceAvgSpeed.textContent = (avgSpeed/rGlobal.raceArray.length).toFixed(1)
     tdRaceGoAvgSpeed.textContent = (avgSpeed/goAvgSpeeds).toFixed(1)
 
+    spnFinesSpeed.textContent = overSpeedFines.toFixed(0);
+    spnFinesPoints.textContent = overPointFines.toFixed(0);
+
     let dist = rGlobal.raceArray[rGlobal.raceArray.length-1].dist;
     if (rGlobal.trackLength>100){
         let toProc = 100 / rGlobal.trackLength;
 
         let proc = toProc * dist;
         let delt = proc - 100;
-
-        //console.log('dist:', dist, 'trackLength:',rGlobal.trackLength)
-        //console.log('toProc:',toProc, 'proc:',proc, 'delt:',delt)
 
         tdRaceDist.textContent = `${(rGlobal.trackLength/1000).toFixed(2)} / ${(dist/1000).toFixed(2)} (${delt>=0?("+"+delt.toFixed(2)):delt.toFixed(2)} %)`;
     }else{
@@ -854,8 +933,6 @@ export const rGlobal = {
     raceArray: [],
 
     /**@type {GpxParser} */
-    trackGPX: null,
-    /**@type {GpxParser} */
     raceGPX: null,
 
     /**@type {"speed"|"radius"} */
@@ -875,6 +952,8 @@ export const rGlobal = {
     finishRaceMarker: null,
     /**@type {L.Polyline} */
     selectLineRace: null,
+    /**@type {Array<L.Polyline>} */
+    overSpeedLineRaces: [],
     /**@type {L.CircleMarker} */
     hoverMarker: null,
 
@@ -983,6 +1062,46 @@ document.addEventListener('insertMarkerAfter', e=>{
             //rGlobal.trackArray;
             rGlobal.trackArray.splice(index+1, 0, np);
 
+            buildTrack();
+        }
+    }
+})
+
+document.addEventListener('setSpeedLimit', e=>{
+    if (contextPoint){
+        Swal.fire({
+            theme: 'bootstrap-5',
+            title: 'Скоростное ограничение',
+            input: 'number',
+            inputLabel: '-1 - ничего не делать (используется последнее значение).\r\n0 - сбросить ограничение до глобального.',
+            inputValue: contextPoint.speedLimit,
+            showCancelButton: true,
+            cancelButtonText: 'Отмена',
+            inputValidator: (value) => {
+                if (value === '') {
+                    return 'Пожалуйста, введите значение';
+                }
+                if (isNaN(value) || parseInt(value)<-1) {
+                    return 'Пожалуйста, введите число больше или равное -1';
+                }
+                return null;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let speed = parseInt(result.value);
+                if (isNaN(speed) || speed<0) speed = -1;
+                contextPoint.speedLimit = parseInt(speed);
+                buildTrack();
+            }
+        });
+    }
+})
+
+document.addEventListener('deleteMarker', e=>{
+    if (contextPoint){
+        let index = rGlobal.trackArray.indexOf(contextPoint);
+        if (index>=0){
+            rGlobal.trackArray.splice(index, 1);
             buildTrack();
         }
     }

@@ -36,6 +36,14 @@ function handleMarkerContextMenu (event) {
       label: 'Добавить маркер после',
       click: () => { event.sender.send('markerContextMenu-command', 'after') }
     },
+    {
+      label: 'Удалить маркер',
+      click: () => { event.sender.send('markerContextMenu-command', 'delete') }
+    },
+    {
+      label: 'Установить скоростное ограничение',
+      click: () => { event.sender.send('markerContextMenu-command', 'speed-limit') }
+    },
   ];
   const menu = Menu.buildFromTemplate(template)
 

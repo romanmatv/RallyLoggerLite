@@ -211,4 +211,28 @@ $my-div-icon-eight: '<svg width="24" height="43" viewBox="0 0 24 43" fill="none"
     font-size: 0.9em;
     text-shadow: 0px 0px 3px black, 0px 0px 3px black;
     font-family: Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    column-gap: 4px;
+}
+.speed{
+    color: #FE3535;
+}
+.speed-end {
+	color: #000;
+	//text-decoration: none;
+    white-space: pre;
+	position: relative;
+	display: inline-block;
+}
+.speed-end::after {
+    content: "";
+	display: block;
+	position: absolute;
+	left: 0; top: 50%;
+	color:red;
+	width: 100%;
+	height: 0;
+	border-bottom: 2px solid red;
+	transform: rotate(10deg);
 }

@@ -13,11 +13,17 @@ ipcRenderer.on('markerContextMenu-command', (e, command) => {
   if (command == "before"){
     let event = new Event('insertMarkerBefore')
     document.dispatchEvent(event)
-  }else{
+  }else if (command == "after"){
     let event = new Event('insertMarkerAfter')
     document.dispatchEvent(event)
+  }else if (command == "speed-limit"){
+    let event = new Event('setSpeedLimit')
+    document.dispatchEvent(event)
+  }else if (command == "delete"){
+    let event = new Event('deleteMarker')
+    document.dispatchEvent(event)
   }
-  
+
 })
 
 window.addEventListener('DOMContentLoaded', () => {

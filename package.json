@@ -1,7 +1,7 @@
 {
   "name": "rallyloggerlite",
   "productName": "Rally Logger Lite",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Application to compare GPX track with race track",
   "main": ".webpack/main",
   "scripts": {
@@ -57,6 +57,7 @@
     "chartjs-plugin-annotation": "^3.1.0",
     "chartjs-plugin-datalabels": "^2.2.0",
     "chartjs-plugin-draggable-selectrange": "^1.2.0",
+    "chartjs-plugin-gradient": "^0.6.1",
     "chartjs-plugin-zoom": "^2.2.0",
     "copy-webpack-plugin": "^13.0.1",
     "dotenv": "^17.3.1",
@@ -74,6 +75,7 @@
     "leaflet-ruler": "^1.0.0",
     "moment": "^2.30.1",
     "path": "^0.12.7",
+    "sweetalert2": "^11.26.24",
     "underscore-template-loader": "^1.2.0",
     "url": "^0.11.4",
     "url-loader": "^4.1.1"

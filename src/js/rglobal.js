@@ -325,6 +325,8 @@ export const trackPoint = {
      * >1 = установить начало локального ограничения
      */
     speedLimit: -1,
+    avgSpeed: 0,
+    maxSpeed: 0,
 }
 
 export const racePoint = {
@@ -775,6 +777,10 @@ function checkRaceOnTrack(){
     /**@type {typeof racePoint[]} */
     let overSpeedPoints = [];
 
+    let segmentMaxSpeed = 0;
+    let segmentAvgSpeed = 0;
+    let segmentGoAvgSpeeds = 0;
+
     speedFinesMap.clear();
     let speedTimes = [];
     for (let i=0; i<rGlobal.raceArray.length; i++){
@@ -783,19 +789,34 @@ function checkRaceOnTrack(){
 
         if (rp.speed>0){
             if (rp.speed>maxSpeed) maxSpeed = rp.speed;
+            if (rp.speed>segmentMaxSpeed) segmentMaxSpeed = rp.speed;
             avgSpeed += rp.speed;
-            //goAvgSpeed += rp.speed;
             goAvgSpeeds++;
+
+            segmentAvgSpeed += rp.speed;
+            segmentGoAvgSpeeds++;
         }
 
+        let acceptedSegmentPoint = false;
         for (let j=0; j<rGlobal.trackArray.length; j++){
             const tp = rGlobal.trackArray[j];
             const metres = helper.distance(rp, tp);
             if (metres<=rGlobal.acceptRadius){
                 if (tp.accepted!=1){
+                    tp.maxSpeed = segmentMaxSpeed;
+                    tp.avgSpeed = segmentGoAvgSpeeds>0 ? (segmentAvgSpeed/segmentGoAvgSpeeds) : 0;
                     tp.accepted = 1;
                     tp.marker.setIcon(getMarkerIcon({accepted: tp.accepted, index: j+1 , text: tp.text, speedLimit: tp.speedLimit}))
-                }                    
+                    acceptedSegmentPoint = true;
+
+                    
+                    let markerTooltip = L.popup({
+                        content: (layer)=>{
+                            return `Максимальная скорость: ${tp.maxSpeed.toFixed(1)} км/ч<br>Средняя скорость: ${(tp.avgSpeed).toFixed(1)} км/ч`;
+                        }
+                    })
+                    tp.marker.bindPopup(markerTooltip);
+                }
 
                 if (rGlobal.raceGraph.config.options.plugins.annotation.annotations[`point_${j}`]===undefined || 
                     rGlobal.raceGraph.config.options.plugins.annotation.annotations[`point_${j}`].dist>metres
@@ -823,6 +844,12 @@ function checkRaceOnTrack(){
                     currentSpeedLimit = rGlobal.globalSpeedLimit;
                 }
             }
+        }
+
+        if (acceptedSegmentPoint){
+            segmentMaxSpeed = 0;
+            segmentAvgSpeed = 0;
+            segmentGoAvgSpeeds = 0;
         }
 
         if (rp.speed>currentSpeedLimit && overSpeedStart===0){

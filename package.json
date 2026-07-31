@@ -1,15 +1,15 @@
 {
   "name": "rallyloggerlite",
   "productName": "Rally Logger Lite",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Application to compare GPX track with race track",
   "main": ".webpack/main",
   "scripts": {
     "start": "chcp 65001 | electron-forge start",
     "start-inspection": "chcp 65001 | electron-forge start --inspect-electron",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
+    "package": "node ./scripts/run-forge-with-compatible-node.js package",
+    "make": "node ./scripts/run-forge-with-compatible-node.js make",
+    "publish": "node ./scripts/run-forge-with-compatible-node.js publish",
     "lint": "echo \"No linting configured\""
   },
   "keywords": [],
